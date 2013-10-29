@@ -86,6 +86,12 @@ namespace SebastianBergmann\PHPLOC\CLI
                      'A comma-separated list of file names to check',
                      array('*.php')
                    )
+                ->addOption(
+                     'files',
+                     NULL,
+                     InputOption::VALUE_NONE,
+                     'Flags the provided values as a list of filenames'
+                   )
                  ->addOption(
                      'names-exclude',
                      NULL,
@@ -156,13 +162,19 @@ namespace SebastianBergmann\PHPLOC\CLI
          */
         private function executeSingle(InputInterface $input, OutputInterface $output)
         {
-            $count = $this->count(
-              $input->getArgument('values'),
-              $input->getOption('exclude'),
-              $this->handleCSVOption($input, 'names'),
-              $this->handleCSVOption($input, 'names-exclude'),
-              $input->getOption('count-tests')
-            );
+
+            if ($input->getOption('files')) {
+                $analyser = new Analyser;
+                $count = $analyser->countFiles($input->getArgument('values'), $input->getOption('count-tests'));
+            } else {
+                $count = $this->count(
+                  $input->getArgument('values'),
+                  $input->getOption('exclude'),
+                  $this->handleCSVOption($input, 'names'),
+                  $this->handleCSVOption($input, 'names-exclude'),
+                  $input->getOption('count-tests')
+                );
+            }
 
             if (!$count) {
                 $output->writeln('No files found to scan');
